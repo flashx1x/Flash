@@ -47,27 +47,28 @@ async function handleMessage(api, event) {
     `[الأسطورة جان] 📩 رسالة من ${senderID} في ${threadID}: "${body.substring(0, 60)}"`,
   );
 
-  if (/^زيد\s+(?:تشغيل|ايقاف|إيقاف)$/u.test(body)) {
-    const zedCommand = commands.get("زيد");
-    if (zedCommand) {
-      zedCommand
+  if (/^فلاش\s+(?:تشغيل|ايقاف|إيقاف)$/u.test(body)) {
+    if (!isAdmin(senderID)) return;
+    const flashCommand = commands.get("فلاش");
+    if (flashCommand) {
+      flashCommand
         .execute(api, event, isAdmin)
         .catch((e) =>
-          console.error("[الأسطورة جان] خطأ في أمر زيد:", e.message || e),
+          console.error("[الأسطورة جان] خطأ في أمر فلاش:", e.message || e),
         );
     }
     return;
   }
 
-  const zedCommand = commands.get("زيد");
-  if (zedCommand && typeof zedCommand.handleMessage === "function") {
-    const handledByZed = await zedCommand
+  const flashCommand = commands.get("فلاش");
+  if (flashCommand && typeof flashCommand.handleMessage === "function") {
+    const handledByFlash = await flashCommand
       .handleMessage(api, event)
       .catch((e) => {
-        console.error("[الأسطورة جان] خطأ في رد زيد:", e.message || e);
+        console.error("[الأسطورة جان] خطأ في رد فلاش:", e.message || e);
         return false;
       });
-    if (handledByZed) return;
+    if (handledByFlash) return;
   }
 
   if (isAdmin(senderID)) {
@@ -401,10 +402,10 @@ function handleEvent(api, event) {
       }, 2000);
     }
 
-    const zedCommand = commands.get("زيد");
-    if (zedCommand && typeof zedCommand.handleJoinEvent === "function") {
-      zedCommand.handleJoinEvent(api, event).catch((e) =>
-        console.error("[الأسطورة جان] خطأ في ترحيب زيد:", e.message || e),
+    const flashCommand = commands.get("فلاش");
+    if (flashCommand && typeof flashCommand.handleJoinEvent === "function") {
+      flashCommand.handleJoinEvent(api, event).catch((e) =>
+        console.error("[الأسطورة جان] خطأ في ترحيب فلاش:", e.message || e),
       );
     }
   }

@@ -123,6 +123,13 @@ function createOpenAIClient() {
   });
 }
 
+function defaultWelcomeText(names) {
+  return [
+    "𝓦𝓮𝓵𝓬𝓸𝓶𝓮 to 𝑻𝒉𝒆 𝑳𝒆𝒈𝒆𝒏𝒅 𝒁𝒆𝒅’𝒔 𝑮𝒓𝒐𝒖𝒑!",
+    `Welcome, ${names.join(", ")}! Zed has noticed your arrival.`,
+  ].join("\n");
+}
+
 function createZedAssistant(options = {}) {
   const store =
     options.stateStore || createGroupStateStore(options.statePath);
@@ -130,6 +137,7 @@ function createZedAssistant(options = {}) {
   const now = options.now || Date.now;
   const logger = options.logger || console;
   const clientFactory = options.clientFactory || createOpenAIClient;
+  const welcomeText = options.welcomeText || defaultWelcomeText;
   const lastReplyAt = new Map();
   let modelClient;
 
@@ -269,12 +277,9 @@ function createZedAssistant(options = {}) {
     if (!newcomers.length) return false;
 
     const names = newcomers.map((participant) => participant.name);
-    const body = [
-      "𝓦𝓮𝓵𝓬𝓸𝓶𝓮 to 𝑻𝒉𝒆 𝑳𝒆𝒈𝒆𝒏𝒅 𝒁𝒆𝒅’𝒔 𝑮𝒓𝒐𝒖𝒑!",
-      `Welcome, ${names.join(", ")}! Zed has noticed your arrival.`,
-    ].join("\n");
+    const body = welcomeText(names);
 
-    let searchFrom = body.indexOf("Welcome, ") + "Welcome, ".length;
+    let searchFrom = 0;
     const mentions = newcomers.map((participant) => {
       const fromIndex = body.indexOf(participant.name, searchFrom);
       if (fromIndex >= 0) searchFrom = fromIndex + participant.name.length;

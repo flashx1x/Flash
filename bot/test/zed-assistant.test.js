@@ -7,7 +7,7 @@ const {
   OPENAI_MODEL,
   createZedAssistant,
 } = require("../zed-assistant");
-const { createZedCommand } = require("../Commands/زيد");
+const { createFlashCommand } = require("../Commands/فلاش");
 
 function makeTempDir(t) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "zed-assistant-"));
@@ -311,15 +311,15 @@ test("enabling Zed welcomes new members with the GIF and a mention", async (t) =
   assert.ok(welcome.message.attachment);
 });
 
-test("only an admin can change Zed's group state", async (t) => {
+test("only a global admin can change Flash's group state", async (t) => {
   const directory = makeTempDir(t);
   const assistant = createZedAssistant({
     statePath: path.join(directory, "zed-state.json"),
   });
-  const command = createZedCommand({ assistant });
+  const command = createFlashCommand({ assistant });
   const api = makeApi();
   const event = {
-    body: "زيد تشغيل",
+    body: "فلاش تشغيل",
     threadID: "group-1",
     senderID: "member-1",
     isGroup: true,
@@ -337,18 +337,18 @@ test("only an admin can change Zed's group state", async (t) => {
 
   await command.execute(
     { ...api, sendMessage: api.sendMessage.bind(api) },
-    { ...event, body: "زيد إيقاف", senderID: "admin-1" },
+    { ...event, body: "فلاش إيقاف", senderID: "admin-1" },
     (senderID) => senderID === "admin-1",
   );
   assert.equal(assistant.isEnabled("group-1"), false);
 });
 
-test("a group admin can enable Zed without being a global bot admin", async (t) => {
+test("a group admin without global admin rights cannot enable Flash", async (t) => {
   const directory = makeTempDir(t);
   const assistant = createZedAssistant({
     statePath: path.join(directory, "zed-state.json"),
   });
-  const command = createZedCommand({ assistant });
+  const command = createFlashCommand({ assistant });
   const api = {
     ...makeApi(),
     async getThreadInfo() {
@@ -359,7 +359,7 @@ test("a group admin can enable Zed without being a global bot admin", async (t) 
   const handled = await command.execute(
     api,
     {
-      body: "زيد تشغيل",
+      body: "فلاش تشغيل",
       threadID: "group-1",
       senderID: "member-1",
       isGroup: true,
@@ -368,5 +368,6 @@ test("a group admin can enable Zed without being a global bot admin", async (t) 
   );
 
   assert.equal(handled, true);
-  assert.equal(assistant.isEnabled("group-1"), true);
+  assert.equal(assistant.isEnabled("group-1"), false);
+  assert.match(api.messages.at(-1).message, /للأدمن فقط/);
 });
