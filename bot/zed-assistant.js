@@ -7,7 +7,7 @@ const DEFAULT_STATE_PATH = path.join(__dirname, "data", "zed-state.json");
 const DEFAULT_WELCOME_GIF_PATH = path.join(
   __dirname,
   "assets",
-  "zed-welcome.gif",
+  "ed7c930b87be0ac9efa2ab964cec8ba0.gif",
 );
 const OPENAI_MODEL = "gpt-5-mini";
 const RESPONSE_COOLDOWN_MS = 5000;
